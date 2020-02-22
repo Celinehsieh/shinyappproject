@@ -1,0 +1,139 @@
+library(shiny)
+library(leaflet)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(xtable)
+library(lubridate)
+library(OpenImageR)
+library(shinythemes)
+library(shinyWidgets)
+library(readbitmap)
+
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(theme = shinytheme("sandstone"),
+    titlePanel(h2(strong("FIND WHERE CELINE GO ")),setBackgroundImage(src="travel1.jpg")),
+    sidebarLayout(
+        sidebarPanel(
+             # First Input
+              pickerInput("continent", h3(strong("Select Continents")),
+                          choices = c("Asia","Europe","America","Oceania"), options = list(`actions-box` = TRUE),multiple = TRUE),
+              br(),
+              br(),
+              # Second Input
+              sliderInput("year_1", h3(strong("Select Years")), 1990, 2019, value = c(1990,2019)),
+              br(),
+              br(),
+              # Third Input
+              submitButton(strong("Search")),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br()
+              
+        ),
+        mainPanel (
+            tabsetPanel(
+              # First Output 
+              tabPanel(h3("About"),helpText(h1("Introduction", align = "center"),
+                                            HTML('<center><img src="flag.jpg" width="500" height = "350"></center>'),
+                                            h3("1.My Travel History"),
+                                            p(h4("I love to travel, so I want to build my own travel map, keep track where I have been to. Currently, I have been to 72 cities or scenes in 16 countries. My ultimate goal is to travel 194 countries around the world and put on the marker.")),
+                                            br(),
+                                            h3("2.Introducing Taiwan"),
+                                                   
+                                            p(h4('Taiwan is an island state in East Asia. The main island, known historically as Formosa. The official name is', code(em("Republic of China")))
+                                            ),
+                                            p(h4("Geographic: Taiwan's land area is 35,808 square kilometres (13,826 sq mi), lying some 180 kilometres (112 mi) across the Taiwan Strait from the southeastern coast of mainland China. The East China Sea lies to its north, the Philippine Sea to its east, the Luzon Strait directly to its south and the South China Sea to its southwest. Smaller islands include a number in the Taiwan Strait including the Penghu archipelago, the Kinmen and Matsu Islands near the Chinese coast, and some of the South China Sea Islands.
+                                                 The main island is a tilted fault block, characterized by the contrast between the eastern two-thirds, consisting mostly of five rugged mountain ranges parallel to the east coast, and the flat to gently rolling plains of the western third, where the majority of Taiwan's population reside. There are several peaks over 3,500 m, the highest being Yu Shan at 3,952 m (12,966 ft), making Taiwan the world's fourth-highest island. The tectonic boundary that formed these ranges is still active, and the island experiences many earthquakes, a few of them highly destructive. There are also many active submarine volcanoes in the Taiwan Straits.
+                                                 The eastern mountains are heavily forested and home to a diverse range of wildlife, while land use in the western and northern lowlands is intensive.")
+                                            ),
+                                            br(),
+                                            h3("3.Data Source"),
+                                            p(h4('I build my travel data set by cities, states, countries and continents, and merge with "world cities" data from R. 
+                                                 The video part I get from a company called "Taiwan Bar". ' ))
+                                            ),
+                       ),
+              # Second Output 
+              tabPanel(h3("World Map"), h1("CELINE'S FOOTPRINT", align = "center"), leafletOutput("mymap")),
+              # Third Output 
+              tabPanel(h3("Data"), tableOutput("table_1"), div(id="table_1",style="font-size:1000px")),
+              # Forth Output   
+              tabPanel(h3("Gallery"),
+                         h1(em("~And Eternity in An Hour~"), align = "center"),
+                         tags$img(src = "1995 paris1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "1994goldengate_bridge1.jpg",width = "300px", height = "220px"),
+                         tags$img(src = "1995germany1.jpg",width = "300px", height = "228px"),
+                         tags$img(src = "1995belgium1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "1995netherlands1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "1995switzerland1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2001emu1.jpg",width = "300px", height = "228px"),
+                         tags$img(src = "2002beijing1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2002New Zealand1.jpg",width = "300px", height = "228px"),
+                         tags$img(src = "2004sichuan1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2007 malaysia.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2010hunan.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2013Mt.Rainer.jpg",width = "300px", height = "228px"),
+                         tags$img(src = "2013space_needle.jpg",width = "300px", height = "300px"),
+                         tags$img(src = "2015 goldengate bridge1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2015 las vegas.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2015 los angelas1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2015san francisco.jpg",width = "300px", height = "228px"),
+                         tags$img(src = "2015Singapore.jpg",width = "300px", height = "228px"),
+                         tags$img(src = "2015tokyo1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2017sakura.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2018kyoto1.jpg",width = "228px", height = "300px"),
+                         tags$img(src = "2019mt.washington.jpg",width = "300px", height = "228px"),
+                         tags$img(src = "2019new york.jpg",width = "228px", height = "300px")
+                         
+                         ),
+              # Fifth Output 
+              tabPanel(h3("Video"),h1(strong("Time for Taiwan-The Heart of Asia", align = "center")),
+                       br(),
+                       h4("The videos are made and published by a Taiwan company called 'Taiwan Bar' which launches informative and entertaining digital content.The channel link is",
+                          a(href=" https://www.youtube.com/channel/UCRNsHFT7BFoAPBcuAa5sgEQ/featured", "Taiwan Bar")),
+                       br(),
+                       h2("Welcome to Taiwan"),
+                                 HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/5zfaTUxAn9U" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
+                                 h2("Night Market 1"),
+                                 HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/ZwMp-ms81LE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
+                                 h2("Night Market 2"),
+                                 HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/_q1m0sJ80ME" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
+                                 h2("Oracle 1"),
+                                 HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/PdajYKmoJ4I" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
+                                 h2("Oracle 2"),
+                                 HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/pyUU5cu8ewA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
+                                 h2("Religious"),
+                                 HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/qGb12pDTNZo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
+                                 h2("Culture"),
+                                 HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/4zPpmdqZhIc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'))
+                 
+           )
+
+       )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    df2 <- read.csv("data/travel_match_final.csv", header=TRUE, sep=",")
+    
+  
+    place <- reactive({filter(df2, continent %in% input$continent, year>=input$year_1[1], year<=input$year_1[2])})
+    output$table_1 <- renderTable({
+        xtable(place())
+    })
+
+
+    output$mymap <- renderLeaflet({
+      leaflet(place()) %>%
+          addTiles() %>%
+          addMarkers(lng = ~long, lat = ~lat, popup = ~as.character(city))
+    })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
